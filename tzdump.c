@@ -46,7 +46,7 @@ static const char rcsname[] =
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#include <tzfile.h>
+#include "tzfile.h"
 
 #ifndef TZNAME_MAX
 #endif
@@ -564,8 +564,8 @@ dumptzdata(char *tzval)
 	if ( typecnt == 1 ) {
 		(void)timefmt(stdoffset, sizeof stdoffset, -lti[0].gmtoffset);
 
-		(void)printf("%s:\t", tzval);
-		(void)printf("TZ='%s%s'\n", &chars[lti[0].abbrind], stdoffset);
+		(void)printf("# %s\n", tzval);
+		(void)printf("#%s%s\n", &chars[lti[0].abbrind], stdoffset);
 
 		return 0;
 	}
@@ -577,10 +577,18 @@ dumptzdata(char *tzval)
 	** XXX For the moment, we assume the latter and proceed.
 	*/
 	if ( tt[0].time == 0 && tt[1].time == 0 ) {
+#if 0
 		tt[1].index = timecnt - 1;
 		tt[0].index = tt[1].index - 1;
 		tt[1].time = transit[tt[1].index].time;
 		tt[0].time = transit[tt[0].index].time;
+#endif
+		(void)timefmt(stdoffset, sizeof stdoffset, -lti[transit[timecnt-1].type].gmtoffset);
+
+		(void)printf("# %s\n", tzval);
+		(void)printf("#%s%s\n", &chars[lti[transit[timecnt-1].type].abbrind], stdoffset);
+
+		return 0;
 	}
 	else if ( tt[1].time == 0 ) {
 		tt[1].index = tt[0].index;
@@ -646,34 +654,49 @@ dumptzdata(char *tzval)
 			weekofmonth(starttm->tm_mday, starttm->tm_wday),
 			starttm->tm_wday
 			);
-	(void)sprintf(starttime, "%.2d:%.2d:%.2d",
+	if ((starttm->tm_min != 0) || (starttm->tm_sec != 0)) {
+	(void)sprintf(starttime, "/%.2d:%.2d:%.2d",
 			starttm->tm_hour,
 			starttm->tm_min,
 			starttm->tm_sec
 			);
+	} else {
+		if (starttm->tm_hour != 2)
+			(void)sprintf(starttime, "/%d", starttm->tm_hour);
+		else
+			starttime[0] = 0;
+	}
 	(void)sprintf(enddate, "M%d.%d.%d",
 			1 + endtm->tm_mon,
 			weekofmonth(endtm->tm_mday, endtm->tm_wday),
 			endtm->tm_wday
 			);
-	(void)sprintf(endtime, "%.2d:%.2d:%.2d",
+	if ((endtm->tm_min != 0) || (endtm->tm_sec != 0)) {
+	(void)sprintf(endtime, "/%.2d:%.2d:%.2d",
 			endtm->tm_hour,
 			endtm->tm_min,
 			endtm->tm_sec
 			);
+	} else {
+		if (endtm->tm_hour != 2)
+			(void)sprintf(endtime, "/%d", endtm->tm_hour);
+		else
+			endtime[0] = 0;
+	}
 
 	(void)timefmt(stdoffset, sizeof stdoffset,
 			-lti[tt[endindex].type].gmtoffset);
 	(void)timefmt(dstoffset, sizeof dstoffset,
 			-lti[tt[startindex].type].gmtoffset);
 
-	(void)printf("%s:\t", tzval);
-	(void)printf("TZ='%s%s%s%s,%s/%s,%s/%s'\n",
-		&chars[lti[tt[endindex].type].abbrind], stdoffset,
-		&chars[lti[tt[startindex].type].abbrind], dstoffset,
+	(void)printf("# %s\n", tzval);
+	(void)printf("#%s%s%s", &chars[lti[tt[endindex].type].abbrind], stdoffset,
+			&chars[lti[tt[startindex].type].abbrind]);
+	if ((lti[tt[startindex].type].gmtoffset - lti[tt[endindex].type].gmtoffset) != 3600)
+		(void)printf("%s", dstoffset);
+	(void)printf(",%s%s,%s%s\n",
 		startdate, starttime,
-		enddate, endtime
-		);
+		enddate, endtime);
 
 	return 0;
 }
