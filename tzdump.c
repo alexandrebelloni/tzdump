@@ -104,6 +104,7 @@ char	*progname, *filename;
 char	*zoneinfopath = NULL;
 int	quietflag = 0;
 int	verboseflag = 0;
+char *comment = "";
 
 /*
 **  TZ variable can either be:
@@ -565,7 +566,7 @@ dumptzdata(char *tzval)
 		(void)timefmt(stdoffset, sizeof stdoffset, -lti[0].gmtoffset);
 
 		(void)printf("# %s\n", tzval);
-		(void)printf("#%s%s\n", &chars[lti[0].abbrind], stdoffset);
+		(void)printf("%s%s%s\n", comment, &chars[lti[0].abbrind], stdoffset);
 
 		return 0;
 	}
@@ -586,7 +587,7 @@ dumptzdata(char *tzval)
 		(void)timefmt(stdoffset, sizeof stdoffset, -lti[transit[timecnt-1].type].gmtoffset);
 
 		(void)printf("# %s\n", tzval);
-		(void)printf("#%s%s\n", &chars[lti[transit[timecnt-1].type].abbrind], stdoffset);
+		(void)printf("%s%s%s\n", comment, &chars[lti[transit[timecnt-1].type].abbrind], stdoffset);
 
 		return 0;
 	}
@@ -690,7 +691,7 @@ dumptzdata(char *tzval)
 			-lti[tt[startindex].type].gmtoffset);
 
 	(void)printf("# %s\n", tzval);
-	(void)printf("#%s%s%s", &chars[lti[tt[endindex].type].abbrind], stdoffset,
+	(void)printf("%s%s%s%s", comment, &chars[lti[tt[endindex].type].abbrind], stdoffset,
 			&chars[lti[tt[startindex].type].abbrind]);
 	if ((lti[tt[startindex].type].gmtoffset - lti[tt[endindex].type].gmtoffset) != 3600)
 		(void)printf("%s", dstoffset);
@@ -725,7 +726,7 @@ main(int argc, char *argv[])
 	** -q	print only TZ
 	** -v	print transition time data
 	*/
-	while ( (ch = getopt(argc, argv, "hp:qvV")) != EOF ) {
+	while ( (ch = getopt(argc, argv, "hp:qcvV")) != EOF ) {
 		switch ( ch ) {
 		case 'h':
 			(void)printf("Usage: %s %s\n%s\n",
@@ -739,6 +740,9 @@ main(int argc, char *argv[])
 		case 'q':
 			quietflag = 1;
 			verboseflag = 0;
+			break;
+		case 'c':
+			comment = "#";
 			break;
 		case 'v':
 			quietflag = 0;
