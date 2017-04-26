@@ -46,6 +46,7 @@ static const char rcsname[] =
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <ctype.h>
 #include "tzfile.h"
 
 #ifndef TZNAME_MAX
@@ -273,6 +274,23 @@ tzhdecode(char *p)
 	return tmp;
 }
 
+char *
+wrapabbrev(char *abbrev)
+{
+    static char wrapbuf[TZ_MAX_CHARS+2];
+    int i;
+
+    for(i = 0; abbrev[i] != '\0'; ++i)
+    {
+        if(isdigit(abbrev[i]) || (abbrev[i] == '+') || (abbrev[i] == '-'))
+        {
+            snprintf(wrapbuf, sizeof(wrapbuf), "<%s>", abbrev);
+            wrapbuf[sizeof(wrapbuf) - 1] = '\0';
+            return wrapbuf;
+        }
+    }
+    return abbrev;
+}
 
 /*
 ** Read zoneinfo data file and generate expanded TZ value.
@@ -566,7 +584,7 @@ dumptzdata(char *tzval)
 		(void)timefmt(stdoffset, sizeof stdoffset, -lti[0].gmtoffset);
 
 		(void)printf("# %s\n", tzval);
-		(void)printf("%s%s%s\n", comment, &chars[lti[0].abbrind], stdoffset);
+		(void)printf("%s%s%s\n", comment, wrapabbrev(&chars[lti[0].abbrind]), stdoffset);
 
 		return 0;
 	}
@@ -587,7 +605,7 @@ dumptzdata(char *tzval)
 		(void)timefmt(stdoffset, sizeof stdoffset, -lti[transit[timecnt-1].type].gmtoffset);
 
 		(void)printf("# %s\n", tzval);
-		(void)printf("%s%s%s\n", comment, &chars[lti[transit[timecnt-1].type].abbrind], stdoffset);
+		(void)printf("%s%s%s\n", comment, wrapabbrev(&chars[lti[transit[timecnt-1].type].abbrind]), stdoffset);
 
 		return 0;
 	}
@@ -691,8 +709,8 @@ dumptzdata(char *tzval)
 			-lti[tt[startindex].type].gmtoffset);
 
 	(void)printf("# %s\n", tzval);
-	(void)printf("%s%s%s%s", comment, &chars[lti[tt[endindex].type].abbrind], stdoffset,
-			&chars[lti[tt[startindex].type].abbrind]);
+	(void)printf("%s%s%s%s", comment, wrapabbrev(&chars[lti[tt[endindex].type].abbrind]), stdoffset,
+	        wrapabbrev(&chars[lti[tt[startindex].type].abbrind]));
 	if ((lti[tt[startindex].type].gmtoffset - lti[tt[endindex].type].gmtoffset) != 3600)
 		(void)printf("%s", dstoffset);
 	(void)printf(",%s%s,%s%s\n",
