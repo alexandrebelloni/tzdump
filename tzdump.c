@@ -501,7 +501,7 @@ dumptzdata(char *tzval)
 
 	if ( verboseflag ) {
 		for ( i = 0 ; i < timecnt ; i++ )
-			(void)printf("transit[%d]: time=%d (%s) type=%d\n",
+			(void)printf("transit[%d]: time=%ld (%s) type=%ld\n",
 				i, transit[i].time, ctimeGMT(transit[i].time),
 				transit[i].type);
 	}
@@ -533,7 +533,7 @@ dumptzdata(char *tzval)
 		leaps[i].correct = tzhdecode(p);
 		p += 4;
 		if ( ! quietflag ) {
-			(void)printf("leaps[%d]: transit=%d correct=%d\n",
+			(void)printf("leaps[%d]: transit=%ld correct=%ld\n",
 					i, leaps[i].transit, leaps[i].correct);
 		}
 	}
@@ -641,10 +641,10 @@ dumptzdata(char *tzval)
 	}
 
 	if ( ! quietflag ) {
-		(void)printf("tt[0]: time=%d (%s) index=%d type=%d\n",
+		(void)printf("tt[0]: time=%ld (%s) index=%d type=%d\n",
 				tt[0].time, ctimeGMT(tt[0].time),
 				tt[0].index, tt[0].type);
-		(void)printf("tt[1]: time=%d (%s) index=%d type=%d\n",
+		(void)printf("tt[1]: time=%ld (%s) index=%d type=%d\n",
 				tt[1].time, ctimeGMT(tt[1].time),
 				tt[1].index, tt[1].type);
 	}
