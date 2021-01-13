@@ -381,8 +381,8 @@ dumptzdata(char *tzval)
 		(void)strncpy(datafile, zoneinfopath, sizeof datafile);
 	}
 
-	(void)strncat(datafile, "/", sizeof datafile);
-	(void)strncat(datafile, tzval, sizeof datafile);
+	(void)strncat(datafile, "/", sizeof datafile - 1);
+	(void)strncat(datafile, tzval, sizeof datafile - strlen(tzval));
 
 	/*
 	** Open and read the zoneinfo data file.
