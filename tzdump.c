@@ -184,7 +184,7 @@ weekofmonth(int mday, int wday)
 
 	TRACE(("weekofmonth(mday = %d, wday = %d)\n", mday, wday));
 
-	tmp = 1 + mday/7;
+	tmp = 1 + --mday/7;
 	/* Assume that the last week of the month is desired. */
 	if ( tmp == 4 )
 		tmp++;
