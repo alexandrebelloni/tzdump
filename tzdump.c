@@ -633,7 +633,7 @@ dumptzdata(char *tzval)
 #endif /* STRUCT_TZHEAD_TTISGMTCNT */
 			tmptime = tt[i].time
 					+ lti[tt[(i>0)?0:1].type].gmtoffset;
-		if ( lti[i].stds != 0 && lti[tt[i].type].isdst != 0 )
+		if ( lti[tt[i].type].stds != 0 && lti[tt[i].type].isdst != 0 )
 			tmptime += lti[tt[i].type].gmtoffset
 					- lti[tt[(i>0)?0:1].type].gmtoffset;
 		tt[i].tm = gmtime(&tmptime);
